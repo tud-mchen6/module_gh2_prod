@@ -3,3 +3,4 @@ resources:
   automatic:
     # Links for automatically downloaded files
     dummy_readme: "https://raw.githubusercontent.com/modelblocks-org/docs/refs/heads/main/README.md"
+    water_need: "https://zenodo.org/records/20340784/files/cooling-water-hydrogen-replication.zip?download=1"
