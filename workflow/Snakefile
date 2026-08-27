@@ -13,6 +13,7 @@ pathvars:
     results="results",
     logs="logs",
     potential="resources/user",
+    water_curve_dir="resources/user/water_curves",
 
 
 # Load the example configuration. This will be overridden by users.

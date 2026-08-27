@@ -3,6 +3,7 @@
 Should be deleted in real workflows.
 """
 
+import pyarrow as pa
 import pyarrow.parquet as pq
 import pandas as pd
 import numpy as np
@@ -15,17 +16,19 @@ AE_params = {
     "CAPEX": 700,  # EUR/kW
     "OPEX": 50,  # EUR/kg
     "life": 50,  # years
+    "FOM": 0.02,  # share of CAPEX
 }
 PEM_params = {
     "ener": 61,  # kWhe/kg H2
     "CAPEX": 800,  # EUR/kW
     "OPEX": 60,  # EUR/kg
     "life": 60,  # years
+    "FOM": 0.02,  # share of CAPEX
 }
 
 
 def get_hydrogen_curve(
-    electrolyser_type, vRES_curves, water_curve, water_need, h2_curve
+    electrolyser_type, vRES_curves, water_curve, water_need, h2_curve, discount_rate
 ):
 
     # Read the vRES curves. Area in km2; production in MWh
@@ -49,6 +52,7 @@ def get_hydrogen_curve(
         tech_params = AE_params
     elif electrolyser_type == "PEM":
         tech_params = PEM_params
+    shape = snakemake.wildcards.shape
     # TODO: add overwrite values
 
     # Find out all the water-electricity relations. Unit: kWh/m3
@@ -131,12 +135,24 @@ def get_hydrogen_curve(
             water_prod = vRES_prod / water["elec_to_water"][0]
 
         # Calculate LCOH based on given data and the equation
-        # First, calculate the electrolyser capacity for each row
-        # LCOH calculation formula: see Terlouw et al. 2024
+        crf = (
+            discount_rate
+            * (1 + discount_rate) ** tech_params["life"]
+            / ((1 + discount_rate) ** tech_params["life"] - 1)
+        )
+        gh2_prod = vRES_prod / tech_params["ener"]
+        cap = (
+            gh2_prod / 8760
+        )  # assume same power level all year; conservative assumption
+        # TODO: add replacement cost or variable cost!
+        tot_cost = (1 + tech_params["FOM"]) * cap * crf * tech_params["CAPEX"]
+        gh2_cost = tot_cost / gh2_prod
         # Output to the given path
+        table = pa.table(dict({"gh2_prod": gh2_prod, "gh2_cost": gh2_cost}))
     else:
-        # TODO: output an empty parquet in the end
-        print("No hydrogen can be produced.")
+        print(f"No hydrogen can be produced in {shape}. Output empty parquet")
+        table = pa.table(dict({"gh2_prod": [], "gh2_cost": []}))
+    pq.write_table(table, h2_curve)
 
     # ### Calculate the total electricity needed when all given water is used up
     # # That includes the part of electrolyser usage, and the part for water production (if present)
@@ -154,6 +170,7 @@ def get_hydrogen_curve(
 if __name__ == "__main__":
     get_hydrogen_curve(
         electrolyser_type=snakemake.params.electrolyser_type,
+        discount_rate=snakemake.params.discount_rate,
         vRES_curves=snakemake.input.vRES_curves,
         water_curve=snakemake.input.water_curve,
         water_need=snakemake.input.water_need,
