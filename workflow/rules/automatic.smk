@@ -58,7 +58,7 @@ rule clip_shape_water_need:
         """
     input:
         raster="<resources>/automatic/global/water_need_world.tif",
-        like_raster='<resources>/user/shapes/{shape}/area_potential_pv_rooftop.tif',
+        like_raster='<potential>/shapes/{shape}/area_potential_pv_rooftop.tif',
     output:
         path=temp("<resources>/automatic/cutout/{shape}/water_need.tif"),
     log:
