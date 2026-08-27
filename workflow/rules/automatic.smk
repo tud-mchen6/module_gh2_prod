@@ -1,20 +1,6 @@
 """Rules to used to download automatic resource files."""
 
 
-rule dummy_download:
-    message:
-        "Download the Modelblocks README file."
-    params:
-        url=internal["resources"]["automatic"]["dummy_readme"],
-    output:
-        readme="<resources>/automatic/dummy_readme.md",
-    log:
-        "<logs>/dummy_download.log",
-    conda:
-        "../envs/module.yaml"
-    shell:
-        'curl -sSLo {output.readme} "{params.url}"'
-
 
 rule download_water_need:
     message:
@@ -25,9 +11,9 @@ rule download_water_need:
     params:
         url=internal['resources']['automatic']['water_need']
     output:
-        "resources/automatic/global/water_need.zip",
+        "<resources>/automatic/global/water_need.zip",
     log:
-        "logs/download_water_need.log",
+        "<logs>/download_water_need.log",
     shell:
         """
         curl -sSLo {output:q} {params.url:q}
@@ -44,9 +30,9 @@ rule extract_water_need:
     params:
         internal_paths='cooling-water-hydrogen-replication/data/figure_source_data/cooling/Yearly_Average.csv'
     output:
-        temp('resources/automatic/global/water_need_world.csv'),
+        temp('<resources>/automatic/global/water_need_world.csv'),
     log:
-        "logs/extract_water_need.log",
+        "<logs>/extract_water_need.log",
     wrapper:
         "v9.8.0/utils/libarchive/extract"
 
@@ -59,9 +45,9 @@ rule reform_water_need:
     input:
         csv=rules.extract_water_need.output[0],
     output:
-        water_need_tiff=temp("resources/automatic/global/water_need_world.tif"),
+        water_need_tiff=temp("<resources>/automatic/global/water_need_world.tif"),
     log:
-        'logs/reform_water_need.log',
+        '<logs>/reform_water_need.log',
     script:
         "../scripts/reform_water_need.py"
 
@@ -71,12 +57,12 @@ rule clip_shape_water_need:
         Use the raster of a region/country to clip the rasterised water need file.
         """
     input:
-        raster="resources/automatic/global/water_need_world.tif",
-        like_raster='resources/user/shapes/{shape}/area_potential_pv_rooftop.tif',
+        raster="<resources>/automatic/global/water_need_world.tif",
+        like_raster='<resources>/user/shapes/{shape}/area_potential_pv_rooftop.tif',
     output:
-        path=temp("resources/automatic/cutout/{shape}/water_need.tif"),
+        path=temp("<resources>/automatic/cutout/{shape}/water_need.tif"),
     log:
-        "logs/clip_shape_water_need_{shape}.log",
+        "<logs>/clip_shape_water_need_{shape}.log",
     wrapper:
         "v9.0.0/geo/rasterio/clip"
 
@@ -90,8 +76,8 @@ rule get_shape_water_need:
     input:
         clipped=rules.clip_shape_water_need.output[0],
     output:
-        shape_water_need=temp("resources/automatic/cutout/{shape}/water_need.txt"),
+        shape_water_need=temp("<resources>/automatic/cutout/{shape}/water_need.txt"),
     log:
-        "logs/get_shape_water_need_{shape}.log",
+        "<logs>/get_shape_water_need_{shape}.log",
     script:
         "../scripts/get_shape_water_need.py"
