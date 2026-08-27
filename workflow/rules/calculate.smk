@@ -9,7 +9,7 @@ rule get_hydrogen_curve:
         discount_rate=config["discount_rate"],
     input:
         # TODO: temporary file, configure the wiring later!
-        vRES_curves="resources/user/shapes/{shape}/processed_curves_data.parquet",
+        vRES_curves="<vres_prod_dir>/shapes/{shape}/processed_curves_data.parquet",
         # TODO: temporary file, configure the wiring later! Especially that the files have assumptions in
         water_curve="<water_curve_dir>/water_curve_{shape}_{water_scenario}.csv",
         water_need=rules.get_shape_water_need.output[0],
