@@ -3,6 +3,21 @@ description: "Schema for user-provided configuration files."
 type: object
 additionalProperties: false
 properties:
-  dummy_text:
-    description: A template example. Should be deleted in real applications.
+  electrolyser_type:
+    description: type of electrolyser, AE or PEM
     type: string
+  discount_rate:
+    description: discount rate for calculation
+    type: number
+  
+
+  # overrides:
+  #   type: object
+  #   additionalProperties:
+  #     type: object
+  #     energy_per_kg:
+  #       type: number
+  #     electrolyser_cost:
+  #       type: number
+  #     water_need_override: 
+  #       type: number

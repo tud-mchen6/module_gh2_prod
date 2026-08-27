@@ -1,2 +1,14 @@
 # A minimal example of how to configure this module
-dummy_text: This is a user input.
+
+# type of electrolyser, AE or PEM
+electrolyser_type: AE
+# discount rate for calculation
+discount_rate: 0.03
+
+# overrides:
+#   # if not using the default energy consumption of electrolysers, add override, unit: kWhe/kg H2
+#   energy_per_kg: 60
+#   # if not using the default cost of electrolysers, unit: EUR/kW
+#   electrolyser_cost: 750
+#   # overriding the water need defined by Wortmann et al. 2026
+#   water_need_override: 10
