@@ -17,6 +17,6 @@ rule get_hydrogen_curve:
         # TODO: temporary file, configure the wiring later!
         h2_curve="<results>/{shape}/h2_curve_{water_scenario}.parquet",
     log:
-        "logs/get_hydrogen_curve_{shape}_{water_scenario}.log",
+        "<logs>/get_hydrogen_curve_{shape}_{water_scenario}.log",
     script:
         "../scripts/get_hydrogen_curve.py"
