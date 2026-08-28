@@ -15,14 +15,14 @@ AE_params = {
     "ener": 58,  # kWhe/kg H2
     "CAPEX": 700,  # EUR/kW
     "OPEX": 50,  # EUR/kg
-    "life": 50,  # years
+    "life": 20,  # years
     "FOM": 0.02,  # share of CAPEX
 }
 PEM_params = {
     "ener": 61,  # kWhe/kg H2
     "CAPEX": 800,  # EUR/kW
     "OPEX": 60,  # EUR/kg
-    "life": 60,  # years
+    "life": 20,  # years
     "FOM": 0.02,  # share of CAPEX
 }
 
@@ -64,7 +64,6 @@ def get_hydrogen_curve(
     vRES_prod = []
     vRES_cost = []
     # Start from the lowest cost vRES
-    breakpoint()
     # TODO: the compensate thing!
     if water["prod"].sum() > 0:
         vRES_prod_total = np.cumsum(vRES_dict["prod"])[-1]
@@ -72,26 +71,27 @@ def get_hydrogen_curve(
             # Calculate the step in vRES curve where water curve changes step
             # If vRES curve stops before the water curve changes step
             if (
-                vRES_prod_total < water["prod"][0] * water["elec_to_water"][0] * 1e9
+                vRES_prod_total
+                < water["prod"].iloc[0] * water["elec_to_water"].iloc[0] * 1e9
             ):  # kWh
                 vRES_prod = vRES_dict["prod"]
                 vRES_cost = vRES_dict["lcoe"]
-                water_cost = [water["cost"]] * len(vRES_dict["prod"])
-                water_prod = vRES_prod / water["elec_to_water"][0]
+                water_cost = [float(water["cost"].iloc[0])] * len(vRES_dict["prod"])
+                water_prod = vRES_prod / water["elec_to_water"].iloc[0]
             else:
                 # TODO: change code into iterative or make it much less verbose
                 # The first step
-                vRES_step_0 = water["prod"][0] * water["elec_to_water"][0]
+                vRES_step_0 = water["prod"].iloc[0] * water["elec_to_water"].iloc[0]
                 i = np.searchsorted(np.cumsum(vRES_dict["prod"]), vRES_step_0)
                 vRES_prod = vRES_dict["prod"][:i]
                 vRES_prod = np.append(
                     vRES_prod, vRES_step_0 - np.cumsum(vRES_dict["prod"])[i - 1]
                 )
                 vRES_cost = vRES_dict["lcoe"][: i + 1]
-                water_cost = water["cost"] * len(vRES_cost)
-                water_prod = vRES_prod / water["elec_to_water"][0]
+                water_cost = [float(water["cost"].iloc[0])] * len(vRES_cost)
+                water_prod = vRES_prod / water["elec_to_water"].iloc[0]
                 # The second step
-                vRES_step_1 = water["prod"][1] * water["elec_to_water"][1]
+                vRES_step_1 = water["prod"].iloc[1] * water["elec_to_water"].iloc[1]
                 # If water is the limiting factor
                 if (vRES_step_0 + vRES_step_1) < vRES_dict["prod"].sum():
                     ii = np.searchsorted(
@@ -112,27 +112,29 @@ def get_hydrogen_curve(
                     vRES_prod = np.append(vRES_prod, add_prod)
                     vRES_cost = np.append(vRES_cost, vRES_dict["lcoe"][i])
                     vRES_cost = np.append(vRES_cost, vRES_dict["lcoe"][i + 1 :])
-                water_cost = np.append(water_cost, water["cost"][1] * (len(add_prod)))
-                water_prod = np.append(water_prod, add_prod / water["prod"][1])
+                water_cost = np.append(
+                    water_cost, [float(water["cost"].iloc[1])] * (len(add_prod))
+                )
+                water_prod = np.append(water_prod, add_prod / water["prod"].iloc[1])
         else:
             # See vRES or water total prod is the limiting factor
             water_total = water["prod"].sum() * 1e9  # Unit: m3
             if (
-                vRES_prod_total / water_total > water["elec_to_water"][0]
+                vRES_prod_total / water_total > water["elec_to_water"].iloc[0]
             ):  # If water is the limiting factor
-                vRES_new_total = water_total * water["elec_to_water"][0]
+                vRES_new_total = water_total * water["elec_to_water"].iloc[0]
                 i = np.searchsorted(np.cumsum(vRES_dict["prod"]), vRES_new_total)
                 vRES_prod = vRES_dict["prod"][:i]
                 vRES_prod = np.append(
                     vRES_prod, vRES_new_total - np.cumsum(vRES_dict["prod"])[i - 1]
                 )
                 vRES_cost = vRES_dict["lcoe"][: i + 1]
-                water_cost = [water["cost"]] * (i + 1)
+                water_cost = [float(water["cost"].iloc[0])] * (i + 1)
             else:  # If vRES is the limiting factor
                 vRES_prod = vRES_dict["prod"]
                 vRES_cost = vRES_dict["lcoe"]
-                water_cost = [water["cost"]] * len(vRES_dict["prod"])
-            water_prod = vRES_prod / water["elec_to_water"][0]
+                water_cost = [float(water["cost"].iloc[0])] * len(vRES_dict["prod"])
+            water_prod = vRES_prod / water["elec_to_water"].iloc[0]
 
         # Calculate LCOH based on given data and the equation
         crf = (
@@ -144,8 +146,11 @@ def get_hydrogen_curve(
         cap = (
             gh2_prod / 8760
         )  # assume same power level all year; conservative assumption
-        # TODO: add replacement cost or variable cost!
+        # Electrolyser CAPEX and FOM
+        # TODO: add replacement cost of electrolyser
         tot_cost = (1 + tech_params["FOM"]) * cap * crf * tech_params["CAPEX"]
+        # Water and electricity cost
+        tot_cost += water_cost * water_prod + vRES_cost * vRES_prod
         gh2_cost = tot_cost / gh2_prod
         # Output to the given path
         table = pa.table(dict({"gh2_prod": gh2_prod, "gh2_cost": gh2_cost}))
