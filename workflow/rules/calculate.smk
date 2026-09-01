@@ -15,7 +15,7 @@ rule get_hydrogen_curve:
         water_need=rules.get_shape_water_need.output[0],
     output:
         # TODO: temporary file, configure the wiring later!
-        h2_curve="<results>/{shape}/h2_curve_{water_scenario}_{pop_year}_{population_scenario}_{demand_scenario}.parquet",
+        h2_curve="<results>/shapes/{shape}/h2_curve_{water_scenario}_{pop_year}_{population_scenario}_{demand_scenario}.parquet",
     log:
         "<logs>/get_hydrogen_curve_{shape}_{water_scenario}_{pop_year}_{population_scenario}_{demand_scenario}.log",
     script:
