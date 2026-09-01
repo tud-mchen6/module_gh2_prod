@@ -146,7 +146,7 @@ def get_hydrogen_curve(
             * (1 + discount_rate) ** tech_params["life"]
             / ((1 + discount_rate) ** tech_params["life"] - 1)
         )
-        gh2_prod = vRES_prod / tech_params["ener"]
+        gh2_prod = vRES_prod / tech_params["ener"]  # Unit: kg H2
         cap = (
             gh2_prod / 8760
         )  # assume same power level all year; conservative assumption
@@ -155,7 +155,7 @@ def get_hydrogen_curve(
         tot_cost = (1 + tech_params["FOM"]) * cap * crf * tech_params["CAPEX"]
         # Water and electricity cost
         tot_cost += water_cost * water_prod + vRES_cost * vRES_prod
-        gh2_cost = tot_cost / gh2_prod
+        gh2_cost = tot_cost / gh2_prod  # Unit: EUR/kg H2
         # Output to the given path
         table = pa.table(dict({"gh2_prod": gh2_prod, "gh2_cost": gh2_cost}))
     else:
