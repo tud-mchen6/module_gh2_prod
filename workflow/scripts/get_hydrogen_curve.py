@@ -39,6 +39,10 @@ def get_hydrogen_curve(
             vRES_dict[name] = (
                 pf.read(columns=[name])[name].to_numpy() * 1e3
             )  # Change unit to kWh
+        elif name == "lcoe":
+            vRES_dict[name] = (
+                pf.read(columns=[name])[name].to_numpy() * 1e-3
+            )  # Change unit to EUR/kWh
         else:
             vRES_dict[name] = pf.read(columns=[name])[name].to_numpy()
     # Read the water curve, unit of quantity is 1e9 m3
