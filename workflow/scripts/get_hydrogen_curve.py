@@ -154,6 +154,7 @@ def get_hydrogen_curve(
         # TODO: add replacement cost of electrolyser
         tot_cost = (1 + tech_params["FOM"]) * cap * crf * tech_params["CAPEX"]
         # Water and electricity cost
+        breakpoint()
         tot_cost += water_cost * water_prod + vRES_cost * vRES_prod
         gh2_cost = tot_cost / gh2_prod  # Unit: EUR/kg H2
         # Output to the given path
