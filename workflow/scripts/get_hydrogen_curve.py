@@ -45,6 +45,7 @@ def get_hydrogen_curve(
             )  # Change unit to EUR/kWh
         else:
             vRES_dict[name] = pf.read(columns=[name])[name].to_numpy()
+    breakpoint()
     # Read the water curve, unit of quantity is 1e9 m3
     water_raw = pd.read_csv(water_curve)
     water = water_raw[water_raw["prod"] > 0]
