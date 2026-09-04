@@ -45,7 +45,6 @@ def get_hydrogen_curve(
             )  # Change unit to EUR/kWh
         else:
             vRES_dict[name] = pf.read(columns=[name])[name].to_numpy()
-    breakpoint()
     # Read the water curve, unit of quantity is 1e9 m3
     water_raw = pd.read_csv(water_curve)
     water = water_raw[water_raw["prod"] > 0]
@@ -86,8 +85,11 @@ def get_hydrogen_curve(
             else:
                 # TODO: change code into iterative or make it much less verbose
                 # The first step
-                vRES_step_0 = water["prod"].iloc[0] * water["elec_to_water"].iloc[0]
+                vRES_step_0 = (
+                    water["prod"].iloc[0] * water["elec_to_water"].iloc[0] * 1e9
+                )
                 i = np.searchsorted(np.cumsum(vRES_dict["prod"]), vRES_step_0)
+                breakpoint()
                 vRES_prod = vRES_dict["prod"][:i]
                 vRES_prod = np.append(
                     vRES_prod, vRES_step_0 - np.cumsum(vRES_dict["prod"])[i - 1]
