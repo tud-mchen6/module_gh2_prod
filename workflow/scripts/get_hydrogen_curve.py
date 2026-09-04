@@ -89,7 +89,6 @@ def get_hydrogen_curve(
                     water["prod"].iloc[0] * water["elec_to_water"].iloc[0] * 1e9
                 )
                 i = np.searchsorted(np.cumsum(vRES_dict["prod"]), vRES_step_0)
-                breakpoint()
                 vRES_prod = vRES_dict["prod"][:i]
                 vRES_prod = np.append(
                     vRES_prod, vRES_step_0 - np.cumsum(vRES_dict["prod"])[i - 1]
@@ -98,7 +97,10 @@ def get_hydrogen_curve(
                 water_cost = [float(water["cost"].iloc[0])] * len(vRES_cost)
                 water_prod = vRES_prod / water["elec_to_water"].iloc[0]
                 # The second step
-                vRES_step_1 = water["prod"].iloc[1] * water["elec_to_water"].iloc[1]
+                breakpoint()
+                vRES_step_1 = (
+                    water["prod"].iloc[1] * water["elec_to_water"].iloc[1] * 1e9
+                )
                 # If water is the limiting factor
                 if (vRES_step_0 + vRES_step_1) < vRES_dict["prod"].sum():
                     ii = np.searchsorted(
@@ -108,12 +110,14 @@ def get_hydrogen_curve(
                     add_prod = np.append(add_prod, vRES_dict["prod"][i + 1 : ii])
                     add_prod = np.append(
                         add_prod,
-                        np.cumsum(vRES_dict["prod"])[i] - vRES_step_0 - vRES_step_1,
+                        np.cumsum(vRES_dict["prod"])[ii] - vRES_step_0 - vRES_step_1,
                     )
+                    vRES_prod = np.append(vRES_prod, add_prod)
                     vRES_cost = np.append(vRES_cost, vRES_dict["lcoe"][i])
                     vRES_cost = np.append(vRES_cost, vRES_dict["lcoe"][i + 1 : ii])
-                    vRES_cost = np.append(vRES_cost, vRES_dict["lcoe"][ii + 1])
+                    vRES_cost = np.append(vRES_cost, vRES_dict["lcoe"][ii])
                 else:
+                    # TODO: not yet debugged
                     add_prod = [np.cumsum(vRES_dict["prod"])[i] - vRES_step_0]
                     add_prod = np.append(add_prod, vRES_dict["prod"][i + 1 :])
                     vRES_prod = np.append(vRES_prod, add_prod)
@@ -124,6 +128,7 @@ def get_hydrogen_curve(
                 )
                 water_prod = np.append(water_prod, add_prod / water["prod"].iloc[1])
         else:
+            # TODO: not yet debugged
             # See vRES or water total prod is the limiting factor
             water_total = water["prod"].sum() * 1e9  # Unit: m3
             if (
