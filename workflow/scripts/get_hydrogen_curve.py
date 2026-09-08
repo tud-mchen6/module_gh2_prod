@@ -69,6 +69,7 @@ def get_hydrogen_curve(
     vRES_cost = []
     # Start from the lowest cost vRES
     # TODO: the compensate thing!
+    breakpoint()
     if water["prod"].sum() > 0:
         vRES_prod_total = np.cumsum(vRES_dict["prod"])[-1]
         if len(water["ener"]) > 1:
@@ -97,7 +98,6 @@ def get_hydrogen_curve(
                 water_cost = [float(water["cost"].iloc[0])] * len(vRES_cost)
                 water_prod = vRES_prod / water["elec_to_water"].iloc[0]
                 # The second step
-                breakpoint()
                 vRES_step_1 = (
                     water["prod"].iloc[1] * water["elec_to_water"].iloc[1] * 1e9
                 )
