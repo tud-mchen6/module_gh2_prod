@@ -51,7 +51,10 @@ def get_hydrogen_curve(
     # Read the water curve, unit of quantity is 1e9 m3
     water_raw = pd.read_csv(water_curve)
     water = water_raw[water_raw["prod"] > 0]
+    total_cost = 0
     water_comp = water_raw[water_raw["prod"] < 0]
+    if len(water_comp) > 0:
+        total_cost -= (water_comp["prod"] * water_comp["cost"]).sum() * 1e9  # EUR
     # Read water consumption (1e-3 m3) per kg produced H2
     with open(water_need, "r") as f:
         water_per_kg = float(f.read())
@@ -163,7 +166,7 @@ def get_hydrogen_curve(
         )  # assume same power level all year; conservative assumption
         # Electrolyser CAPEX and FOM
         # TODO: add replacement cost of electrolyser
-        tot_cost = (1 + tech_params["FOM"]) * cap * crf * tech_params["CAPEX"]
+        tot_cost += (1 + tech_params["FOM"]) * cap * crf * tech_params["CAPEX"]
         # Water and electricity cost
         tot_cost += water_cost * water_prod + vRES_cost * vRES_prod
         gh2_cost = tot_cost / gh2_prod  # Unit: EUR/kg H2
