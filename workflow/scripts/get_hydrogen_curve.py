@@ -169,7 +169,7 @@ def get_hydrogen_curve(
         # Water and electricity cost
         tot_cost += water_cost * water_prod + vRES_cost * vRES_prod
         # Add compensation cost; assume average out across the total gh2 production
-        tot_cost += comp_cost / gh2_prod
+        tot_cost += comp_cost / (gh2_prod.sum()) * gh2_prod
         gh2_cost = tot_cost / gh2_prod  # Unit: EUR/kg H2
         # Output to the given path
         table = pa.table(dict({"gh2_prod": gh2_prod, "gh2_cost": gh2_cost}))
