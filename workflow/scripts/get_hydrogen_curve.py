@@ -131,7 +131,9 @@ def get_hydrogen_curve(
                 water_cost = np.append(
                     water_cost, [float(water["cost"].iloc[1])] * (len(add_prod))
                 )
-                water_prod = np.append(water_prod, add_prod / water["prod"].iloc[1])
+                water_prod = np.append(
+                    water_prod, add_prod / water["elec_to_water"].iloc[1]
+                )
         else:
             # TODO: not yet debugged
             # See vRES or water total prod is the limiting factor
