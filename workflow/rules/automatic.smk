@@ -11,7 +11,7 @@ rule download_water_need:
     params:
         url=internal['resources']['automatic']['water_need']
     output:
-        "<resources>/automatic/global/water_need.zip",
+        "<resources_general>/automatic/global/water_need.zip",
     log:
         "<logs>/download_water_need.log",
     shell:
@@ -30,7 +30,7 @@ rule extract_water_need:
     params:
         internal_paths='cooling-water-hydrogen-replication/data/figure_source_data/cooling/Yearly_Average.csv'
     output:
-        temp('<resources>/automatic/global/water_need_world.csv'),
+        temp('<resources_general>/automatic/global/water_need_world.csv'),
     log:
         "<logs>/extract_water_need.log",
     wrapper:
@@ -45,7 +45,7 @@ rule reform_water_need:
     input:
         csv=rules.extract_water_need.output[0],
     output:
-        water_need_tiff=temp("<resources>/automatic/global/water_need_world.tif"),
+        water_need_tiff=temp("<resources_general>/automatic/global/water_need_world.tif"),
     log:
         '<logs>/reform_water_need.log',
     script:
@@ -57,12 +57,12 @@ rule clip_shape_water_need:
         Use the raster of a region/country to clip the rasterised water need file.
         """
     input:
-        raster="<resources>/automatic/global/water_need_world.tif",
-        like_raster='<potential>/shapes/{shape}/area_potential_pv_rooftop.tif',
+        raster="<resources_general>/automatic/global/water_need_world.tif",
+        like_raster='<potential>/{shape}/area_potential_pv_rooftop.tif',
     output:
-        path=temp("<resources>/automatic/cutout/{shape}/water_need.tif"),
+        path=temp("<resources_scenarios>/automatic/cutout/{shape}/water_need.tif"),
     log:
-        "<logs>/clip_shape_water_need_{shape}.log",
+        "<logs_scenarios>/clip_shape_water_need_{shape}.log",
     wrapper:
         "v9.0.0/geo/rasterio/clip"
 
@@ -76,8 +76,8 @@ rule get_shape_water_need:
     input:
         clipped=rules.clip_shape_water_need.output[0],
     output:
-        shape_water_need=temp("<resources>/automatic/cutout/{shape}/water_need.txt"),
+        shape_water_need=temp("<resources_scenarios>/automatic/cutout/{shape}/water_need.txt"),
     log:
-        "<logs>/get_shape_water_need_{shape}.log",
+        "<logs_scenarios>/get_shape_water_need_{shape}.log",
     script:
         "../scripts/get_shape_water_need.py"

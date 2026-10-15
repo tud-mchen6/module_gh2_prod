@@ -9,9 +9,11 @@ min_version("9.19")
 # Define pathvars for all user resource files and result files
 # This allows users to re-wire how the module is used in their workflow with ease.
 pathvars:
-    resources="resources",
+    resources_general="resources",
+    resources_scenarios="resources",
     results="results",
     logs="logs",
+    logs_scenarios="logs",
     potential="resources/user",
     water_curve_dir="resources/user/water_curves",
     vres_prod_dir="resources/user",
