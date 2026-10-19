@@ -31,7 +31,13 @@ HHV = 39.4  # kWh/kg H2
 
 
 def get_hydrogen_curve(
-    electrolyser_type, vRES_curves, water_curve, water_need, h2_curve, discount_rate
+    electrolyser_type,
+    vRES_curves,
+    water_curve,
+    water_need,
+    h2_curve,
+    discount_rate,
+    util_rate,
 ):
 
     # Read the vRES curves. Area in km2; production in MWh
@@ -164,7 +170,7 @@ def get_hydrogen_curve(
         gh2_prod = vRES_prod / tech_params["ener"]  # Unit: kg H2 / year
         cap = (  # Unit: kW
             gh2_prod * LHV / 8760
-        )  # assume same power level all year; conservative assumption
+        ) / util_rate  # assume same power level all year; conservative assumption
         # Electrolyser CAPEX and FOM
         # TODO: add replacement cost of electrolyser
         tot_cost = (1 + tech_params["FOM"]) * cap * crf * tech_params["CAPEX"]

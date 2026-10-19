@@ -4,6 +4,7 @@
 electrolyser_type: AE
 # discount rate for calculation
 discount_rate: 0.03
+util_rate: 0.6
 
 # overrides:
 #   # if not using the default energy consumption of electrolysers, add override, unit: kWhe/kg H2

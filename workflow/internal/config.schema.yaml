@@ -9,6 +9,9 @@ properties:
   discount_rate:
     description: discount rate for calculation
     type: number
+  util_rate:
+    description: utilisation rate of the electrolyser, between 0 and 1
+    type: number
   
 
   # overrides:

@@ -7,6 +7,7 @@ rule get_hydrogen_curve:
         # TODO: add the reading of optional params
         electrolyser_type=config["electrolyser_type"],
         discount_rate=config["discount_rate"],
+        util_rate=config["util_rate"],
     input:
         vRES_curves="<vres_prod_dir>/{shape}/processed_curves_data_{demand_scenario}.parquet",
         water_curve="<water_curve_dir>/water_curve_{shape}_{water_scenario}.csv",
