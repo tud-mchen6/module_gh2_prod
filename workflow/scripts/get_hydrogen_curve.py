@@ -207,4 +207,5 @@ if __name__ == "__main__":
         water_curve=snakemake.input.water_curve,
         water_need=snakemake.input.water_need,
         h2_curve=snakemake.output.h2_curve,
+        util_rate=snakemake.params.util_rate,
     )
