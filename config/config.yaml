@@ -3,7 +3,7 @@
 # type of electrolyser, AE or PEM
 electrolyser_type: AE
 # discount rate for calculation
-discount_rate: 0.03
+discount_rate: 0.08
 util_rate: 0.6
 
 # overrides:

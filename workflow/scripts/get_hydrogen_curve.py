@@ -13,17 +13,19 @@ import numpy as np
 # TODO: find sensible numbers
 AE_params = {
     "ener": 58,  # kWhe/kg H2
-    "CAPEX": 700,  # EUR/kW
+    "CAPEX": 450,  # EUR/kW; Hampp et al. 2023
     "OPEX": 50,  # EUR/kg
     "life": 20,  # years
-    "FOM": 0.02,  # share of CAPEX
+    "FOM": 0.02,  # share of CAPEX; Hampp et al. 2023
+    # "eff": 0.68,  # Hampp et al. 2023
 }
 PEM_params = {
     "ener": 61,  # kWhe/kg H2
-    "CAPEX": 800,  # EUR/kW
+    "CAPEX": 470,  # EUR/kW; Pfennig et al. 2023
     "OPEX": 60,  # EUR/kg
     "life": 20,  # years
-    "FOM": 0.02,  # share of CAPEX
+    "FOM": 0.05,  # share of CAPEX; Pfennig et al. 2023
+    # "eff": 0.71,  # Pfennig et al. 2023
 }
 
 LHV = 33.33  # kWh/kg H2
@@ -162,6 +164,17 @@ def get_hydrogen_curve(
             water_prod = vRES_prod / water["elec_to_water"].iloc[0]
 
         # Calculate LCOH based on given data and the equation
+        # Get the discount rate
+        breakpoint()
+        if isinstance(discount_rate, dict):
+            if "overrides" in discount_rate:
+                overrides = discount_rate["overrides"]
+                if shape in overrides:
+                    discount_rate = overrides[shape]
+                else:
+                    discount_rate = discount_rate["default"]
+            else:
+                discount_rate = discount_rate["default"]
         crf = (
             discount_rate
             * (1 + discount_rate) ** tech_params["life"]
@@ -185,18 +198,6 @@ def get_hydrogen_curve(
         print(f"No hydrogen can be produced in {shape}. Output empty parquet")
         table = pa.table(dict({"gh2_prod": [], "gh2_cost": []}))
     pq.write_table(table, h2_curve)
-
-    # ### Calculate the total electricity needed when all given water is used up
-    # # That includes the part of electrolyser usage, and the part for water production (if present)
-    # water_total = water["prod"].sum() * 1e9  # Unit: m3
-    # water_energy_total = (
-    #     water["prod"] * water["ener"]
-    # ).sum() * 1e6  # Unit: MWh (1e9 m3 * kWh/m3)
-    # all_energy_for_water = (
-    #     water_energy_total
-    #     + water_total / water_per_kg * 1e12 * tech_params["ener"] * 1e-3
-    # )
-    # vRES_prod_total = np.cumsum(vRES_dict["prod"])[-1]
 
 
 if __name__ == "__main__":

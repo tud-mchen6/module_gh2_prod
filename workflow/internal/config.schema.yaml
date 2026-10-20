@@ -1,26 +1,20 @@
-$schema: "https://json-schema.org/draft/2020-12/schema"
-description: "Schema for user-provided configuration files."
-type: object
-additionalProperties: false
-properties:
-  electrolyser_type:
-    description: type of electrolyser, AE or PEM
-    type: string
-  discount_rate:
-    description: discount rate for calculation
-    type: number
-  util_rate:
-    description: utilisation rate of the electrolyser, between 0 and 1
-    type: number
-  
-
-  # overrides:
-  #   type: object
-  #   additionalProperties:
-  #     type: object
-  #     energy_per_kg:
-  #       type: number
-  #     electrolyser_cost:
-  #       type: number
-  #     water_need_override: 
-  #       type: number
+discount_rate:
+  description: Discount rate for calculation, with optional country-specific overrides
+  type: object
+  additionalProperties: false
+  properties:
+    default:
+      description: Default discount rate used when no country override is defined
+      type: number
+      minimum: 0
+      maximum: 1
+    overrides:
+      description: Country-specific discount rates, keyed by country code
+      type: object
+      additionalProperties:
+        type: number
+        minimum: 0
+        maximum: 1
+      default: {}
+  required:
+    - default
