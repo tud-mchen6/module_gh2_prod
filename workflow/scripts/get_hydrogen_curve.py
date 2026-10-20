@@ -164,7 +164,6 @@ def get_hydrogen_curve(
 
         # Calculate LCOH based on given data and the equation
         # Get the discount rate
-        breakpoint()
         if isinstance(discount_rate, dict):
             if "overrides" in discount_rate:
                 overrides = discount_rate["overrides"]
