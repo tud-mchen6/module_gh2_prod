@@ -1,20 +1,24 @@
-discount_rate:
-  description: Discount rate for calculation, with optional country-specific overrides
-  type: object
-  additionalProperties: false
-  properties:
-    default:
-      description: Default discount rate used when no country override is defined
-      type: number
-      minimum: 0
-      maximum: 1
-    overrides:
-      description: Country-specific discount rates, keyed by country code
-      type: object
-      additionalProperties:
+$schema: "https://json-schema.org/draft/2020-12/schema"
+
+type: object
+properties:
+  discount_rate:
+    description: Discount rate for calculation, with optional country-specific overrides
+    type: object
+    additionalProperties: false
+    properties:
+      default:
+        description: Default discount rate when no country override is defined
         type: number
         minimum: 0
         maximum: 1
-      default: {}
-  required:
-    - default
+      overrides:
+        description: Country-specific discount rates, keyed by country code
+        type: object
+        additionalProperties:
+          type: number
+          minimum: 0
+          maximum: 1
+        default: {}
+    required:
+      - default
