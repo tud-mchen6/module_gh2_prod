@@ -57,7 +57,7 @@ def get_hydrogen_curve(
         else:
             vRES_dict[name] = pf.read(columns=[name])[name].to_numpy()
     # Check if there is surplus or deficit
-    if len(vRES_dict["lcoe"]) < 1:
+    if (vRES_dict["lcoe"][0] == 0) and (len(vRES_dict["lcoe"]) == 1):
         print(f"No vRES available in {snakemake.wildcards.shape}. Output empty parquet")
         table = pa.table(
             dict({"gh2_prod": [], "gh2_cost": [], "vRES_deficit": vRES_dict["prod"]})
