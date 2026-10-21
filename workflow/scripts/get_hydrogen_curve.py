@@ -13,18 +13,18 @@ import numpy as np
 # TODO: find sensible numbers
 AE_params = {
     "ener": 58,  # kWhe/kg H2
-    "CAPEX": 450,  # EUR/kW; Hampp et al. 2023
+    "CAPEX": 2075,  # EUR/kW; https://observatory.clean-hydrogen.europa.eu/index.php/hydrogen-landscape/production-trade-and-cost/electrolyser-cost
     "OPEX": 50,  # EUR/kg
     "life": 20,  # years
-    "FOM": 0.02,  # share of CAPEX; Hampp et al. 2023
+    "FOM": 0.025,  # share of CAPEX; Hampp et al. 2023
     # "eff": 0.68,  # Hampp et al. 2023
 }
 PEM_params = {
     "ener": 61,  # kWhe/kg H2
-    "CAPEX": 470,  # EUR/kW; Pfennig et al. 2023
+    "CAPEX": 2196,  # EUR/kW; https://observatory.clean-hydrogen.europa.eu/index.php/hydrogen-landscape/production-trade-and-cost/electrolyser-cost
     "OPEX": 60,  # EUR/kg
     "life": 20,  # years
-    "FOM": 0.05,  # share of CAPEX; Pfennig et al. 2023
+    "FOM": 0.025,  # share of CAPEX; Pfennig et al. 2023
     # "eff": 0.71,  # Pfennig et al. 2023
 }
 
