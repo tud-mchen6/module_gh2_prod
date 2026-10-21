@@ -56,6 +56,15 @@ def get_hydrogen_curve(
             )  # Change unit to EUR/kWh
         else:
             vRES_dict[name] = pf.read(columns=[name])[name].to_numpy()
+    # Check if there is surplus or deficit
+    if len(vRES_dict["lcoe"]) < 1:
+        print(f"No vRES available in {snakemake.wildcards.shape}. Output empty parquet")
+        table = pa.table(
+            dict({"gh2_prod": [], "gh2_cost": [], "vRES_deficit": vRES_dict["prod"]})
+        )
+        breakpoint()
+        pq.write_table(table, h2_curve)
+        return
     # Read the water curve, unit of quantity is 1e9 m3
     water_raw = pd.read_csv(water_curve)
     water = water_raw[water_raw["prod"] > 0]
