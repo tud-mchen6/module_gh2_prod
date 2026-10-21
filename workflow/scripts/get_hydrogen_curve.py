@@ -60,7 +60,7 @@ def get_hydrogen_curve(
     if (vRES_dict["lcoe"][0] == 0) and (len(vRES_dict["lcoe"]) == 1):
         print(f"No vRES available in {snakemake.wildcards.shape}. Output empty parquet")
         table = pa.table(
-            dict({"gh2_prod": [], "gh2_cost": [], "vRES_deficit": vRES_dict["prod"]})
+            dict({"gh2_prod": [0], "gh2_cost": [0], "vRES_deficit": vRES_dict["prod"]})
         )
         breakpoint()
         pq.write_table(table, h2_curve)
