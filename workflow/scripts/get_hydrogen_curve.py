@@ -62,7 +62,6 @@ def get_hydrogen_curve(
         table = pa.table(
             dict({"gh2_prod": [0], "gh2_cost": [0], "vRES_deficit": vRES_dict["prod"]})
         )
-        breakpoint()
         pq.write_table(table, h2_curve)
         return
     # Read the water curve, unit of quantity is 1e9 m3
