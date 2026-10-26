@@ -7,9 +7,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pandas as pd
 import numpy as np
-import click
 import glom
-import yaml
 
 
 # Default parameters of two electrolyser technologies
@@ -35,13 +33,6 @@ LHV = 33.33  # kWh/kg H2
 HHV = 39.4  # kWh/kg H2
 
 
-@click.command()
-@click.argument("config", type=str)
-@click.argument("vres_curves", type=str)
-@click.argument("water_curve", type=str)
-@click.argument("water_need", type=str)
-@click.argument("h2_curve", type=str)
-@click.option("--override_config", type=str)
 def get_hydrogen_curve(
     config, vres_curves, water_curve, water_need, h2_curve, override_config
 ):
@@ -70,12 +61,10 @@ def get_hydrogen_curve(
         return
 
     # Load the config for all electrolyser parameters
-    config = yaml.safe_load(config)
     breakpoint()
     if override_config:
-        override_config = yaml.safe_load(override_config)
+        del config["overrides"]
         config = glom.merge([config, override_config])
-        print(f"\nConfig after override: {config}\n")
 
     # Read the water curve, unit of quantity is 1e9 m3
     water_raw = pd.read_csv(water_curve)
@@ -228,4 +217,11 @@ def get_hydrogen_curve(
 
 
 if __name__ == "__main__":
-    get_hydrogen_curve()
+    get_hydrogen_curve(
+        config=snakemake.params.config,
+        vres_curves=snakemake.input.vres_curves,
+        water_curve=snakemake.input.water_curve,
+        water_need=snakemake.input.water_need,
+        h2_curve=snakemake.output.h2_curve,
+        override_config=snakemake.params.shape_override_config,
+    )

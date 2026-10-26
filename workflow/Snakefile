@@ -14,9 +14,9 @@ pathvars:
     results="results",
     logs="logs",
     logs_scenarios="logs",
-    potential="resources/user",
+    potential="resources/user/shapes",
     water_curve_dir="resources/user/water_curves",
-    vres_prod_dir="resources/user",
+    vres_prod_dir="resources/user/shapes",
 
 
 # Load the example configuration. This will be overridden by users.
