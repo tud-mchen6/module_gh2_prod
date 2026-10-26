@@ -1,15 +1,16 @@
 # A minimal example of how to configure this module
 
-# type of electrolyser, AE or PEM
-electrolyser_type: AE
+# electrolyser parameters specification
+electrolyser_energy: 58  # kWhe/kg H2
+electrolyser_CAPEX: 2075  # EUR/kW
+electrolyser_FOM: 0.025
+electrolyser_lifetime: 20
 # discount rate for calculation
 discount_rate: 0.08
 util_rate: 0.6
 
-# overrides:
-#   # if not using the default energy consumption of electrolysers, add override, unit: kWhe/kg H2
-#   energy_per_kg: 60
-#   # if not using the default cost of electrolysers, unit: EUR/kW
-#   electrolyser_cost: 750
-#   # overriding the water need defined by Wortmann et al. 2026
-#   water_need_override: 10
+overrides:
+  NAM:
+    discount_rate: 0.12
+  DEU:
+    electrolyser_CAPEX: 2000

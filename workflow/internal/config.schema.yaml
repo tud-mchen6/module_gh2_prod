@@ -1,24 +1,81 @@
+# $schema: "https://json-schema.org/draft/2020-12/schema"
+
+# type: object
+# properties:
+#   discount_rate:
+#     description: Discount rate for calculation, with optional country-specific overrides
+#     type: object
+#     additionalProperties: false
+#     properties:
+#       default:
+#         description: Default discount rate when no country override is defined
+#         type: number
+#         minimum: 0
+#         maximum: 1
+#       overrides:
+#         description: Country-specific discount rates, keyed by country code
+#         type: object
+#         additionalProperties:
+#           type: number
+#           minimum: 0
+#           maximum: 1
+#         default: {}
+#     required:
+#       - default
+
+
+
 $schema: "https://json-schema.org/draft/2020-12/schema"
 
 type: object
 properties:
+  electrolyser_energy:
+    type: number
+    description: "Electrolyser energy consumption (kWhe/kg H2)"
+  electrolyser_CAPEX:
+    type: number
+    description: "Electrolyser capital expenditure (EUR/kW)"
+  electrolyser_FOM:
+    type: number
+    description: "Electrolyser fixed operation and maintenance fraction"
+  electrolyser_lifetime:
+    type: number
+    description: "Electrolyser lifetime (years)"
   discount_rate:
-    description: Discount rate for calculation, with optional country-specific overrides
+    type: number
+    description: "Discount rate"
+  util_rate:
+    type: number
+    description: "Electrolyser utilisation rate"
+
+  overrides:
     type: object
-    additionalProperties: false
-    properties:
-      default:
-        description: Default discount rate when no country override is defined
-        type: number
-        minimum: 0
-        maximum: 1
-      overrides:
-        description: Country-specific discount rates, keyed by country code
+    description: "Optional parameter overrides by country code"
+    patternProperties:
+      "^[A-Z]{3}$":
         type: object
-        additionalProperties:
-          type: number
-          minimum: 0
-          maximum: 1
-        default: {}
-    required:
-      - default
+        properties:
+          electrolyser_energy:
+            type: number
+          electrolyser_CAPEX:
+            type: number
+          electrolyser_FOM:
+            type: number
+          electrolyser_lifetime:
+            type: number
+          discount_rate:
+            type: number
+          util_rate:
+            type: number
+        additionalProperties: false
+    additionalProperties: false
+
+required:
+  - electrolyser_energy
+  - electrolyser_CAPEX
+  - electrolyser_FOM
+  - electrolyser_lifetime
+  - discount_rate
+  - util_rate
+
+additionalProperties: false

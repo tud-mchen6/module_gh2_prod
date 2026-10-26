@@ -7,6 +7,9 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pandas as pd
 import numpy as np
+import click
+import glom
+import yaml
 
 
 # Default parameters of two electrolyser technologies
@@ -32,18 +35,19 @@ LHV = 33.33  # kWh/kg H2
 HHV = 39.4  # kWh/kg H2
 
 
+@click.command()
+@click.argument("config", type=str)
+@click.argument("vres_curves", type=str)
+@click.argument("water_curve", type=str)
+@click.argument("water_need", type=str)
+@click.argument("h2_curve", type=str)
+@click.option("--override_config", type=str)
 def get_hydrogen_curve(
-    electrolyser_type,
-    vRES_curves,
-    water_curve,
-    water_need,
-    h2_curve,
-    discount_rate,
-    util_rate,
+    config, vres_curves, water_curve, water_need, h2_curve, override_config
 ):
 
     # Read the vRES curves. Area in km2; production in MWh
-    pf = pq.ParquetFile(vRES_curves)
+    pf = pq.ParquetFile(vres_curves)
     vRES_dict = {}
     for name in pf.schema_arrow.names:  # Slowly load the content
         if name == "prod":
@@ -64,6 +68,15 @@ def get_hydrogen_curve(
         )
         pq.write_table(table, h2_curve)
         return
+
+    # Load the config for all electrolyser parameters
+    config = yaml.safe_load(config)
+    breakpoint()
+    if override_config:
+        override_config = yaml.safe_load(override_config)
+        config = glom.merge([config, override_config])
+        print(f"\nConfig after override: {config}\n")
+
     # Read the water curve, unit of quantity is 1e9 m3
     water_raw = pd.read_csv(water_curve)
     water = water_raw[water_raw["prod"] > 0]
@@ -74,15 +87,17 @@ def get_hydrogen_curve(
     # Read water consumption (1e-3 m3) per kg produced H2
     with open(water_need, "r") as f:
         water_per_kg = float(f.read())
-    if electrolyser_type == "AE":
-        tech_params = AE_params
-    elif electrolyser_type == "PEM":
-        tech_params = PEM_params
+    # if electrolyser_type == "AE":
+    #     tech_params = AE_params
+    # elif electrolyser_type == "PEM":
+    #     tech_params = PEM_params
     shape = snakemake.wildcards.shape
     # TODO: add overwrite values
 
     # Find out all the water-electricity relations. Unit: kWh/m3
-    water["elec_to_water"] = tech_params["ener"] / water_per_kg * 1e3 + water["ener"]
+    water["elec_to_water"] = (
+        config["electrolyser_energy"] / water_per_kg * 1e3 + water["ener"]
+    )
 
     # Construct the arrays for the final H2 curve
     water_prod = []
@@ -171,28 +186,34 @@ def get_hydrogen_curve(
             water_prod = vRES_prod / water["elec_to_water"].iloc[0]
 
         # Calculate LCOH based on given data and the equation
-        # Get the discount rate
-        if isinstance(discount_rate, dict):
-            if "overrides" in discount_rate:
-                overrides = discount_rate["overrides"]
-                if shape in overrides:
-                    discount_rate = overrides[shape]
-                else:
-                    discount_rate = discount_rate["default"]
-            else:
-                discount_rate = discount_rate["default"]
+        # # Get the discount rate
+        # if isinstance(discount_rate, dict):
+        #     if "overrides" in discount_rate:
+        #         overrides = discount_rate["overrides"]
+        #         if shape in overrides:
+        #             discount_rate = overrides[shape]
+        #         else:
+        #             discount_rate = discount_rate["default"]
+        #     else:
+        #         discount_rate = discount_rate["default"]
+        discount_rate = config["discount_rate"]
+        lifetime = config["electrolyser_lifetime"]
         crf = (
             discount_rate
-            * (1 + discount_rate) ** tech_params["life"]
-            / ((1 + discount_rate) ** tech_params["life"] - 1)
+            * (1 + discount_rate) ** lifetime
+            / ((1 + discount_rate) ** lifetime - 1)
         )
-        gh2_prod = vRES_prod / tech_params["ener"]  # Unit: kg H2 / year
+        gh2_prod = vRES_prod / config["electrolyser_energy"]  # Unit: kg H2 / year
         cap = (  # Unit: kW
             gh2_prod * LHV / 8760
-        ) / util_rate  # assume same power level all year; conservative assumption
+        ) / config[
+            "util_rate"
+        ]  # assume same power level all year; conservative assumption
         # Electrolyser CAPEX and FOM
         # TODO: add replacement cost of electrolyser
-        tot_cost = (1 + tech_params["FOM"]) * cap * crf * tech_params["CAPEX"]
+        tot_cost = (
+            (1 + config["electrolyser_FOM"]) * cap * crf * config["electrolyser_CAPEX"]
+        )
         # Water and electricity cost
         tot_cost += water_cost * water_prod + vRES_cost * vRES_prod
         # Add compensation cost; assume average out across the total gh2 production
@@ -207,12 +228,4 @@ def get_hydrogen_curve(
 
 
 if __name__ == "__main__":
-    get_hydrogen_curve(
-        electrolyser_type=snakemake.params.electrolyser_type,
-        discount_rate=snakemake.params.discount_rate,
-        vRES_curves=snakemake.input.vRES_curves,
-        water_curve=snakemake.input.water_curve,
-        water_need=snakemake.input.water_need,
-        h2_curve=snakemake.output.h2_curve,
-        util_rate=snakemake.params.util_rate,
-    )
+    get_hydrogen_curve()

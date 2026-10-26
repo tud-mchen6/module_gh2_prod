@@ -26,6 +26,8 @@ xarray = ">=2026.7.0"
 rasterio = ">=1.5.1"
 rioxarray = ">=0.23.0"
 pyarrow = ">=25.0.0"
+glom = ">=25.12.0"
+click = ">=8.5.0"
 
 [feature.module.dependencies]
 curl = ">=8.9.1"
