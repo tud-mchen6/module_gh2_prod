@@ -61,7 +61,6 @@ def get_hydrogen_curve(
         return
 
     # Load the config for all electrolyser parameters
-    breakpoint()
     if override_config:
         del config["overrides"]
         config = glom.merge([config, override_config])
@@ -76,12 +75,7 @@ def get_hydrogen_curve(
     # Read water consumption (1e-3 m3) per kg produced H2
     with open(water_need, "r") as f:
         water_per_kg = float(f.read())
-    # if electrolyser_type == "AE":
-    #     tech_params = AE_params
-    # elif electrolyser_type == "PEM":
-    #     tech_params = PEM_params
     shape = snakemake.wildcards.shape
-    # TODO: add overwrite values
 
     # Find out all the water-electricity relations. Unit: kWh/m3
     water["elec_to_water"] = (
@@ -93,6 +87,7 @@ def get_hydrogen_curve(
     water_cost = []
     vRES_prod = []
     vRES_cost = []
+    breakpoint()
     # Start from the lowest cost vRES
     if water["prod"].sum() > 0:
         vRES_prod_total = np.cumsum(vRES_dict["prod"])[-1]
@@ -175,16 +170,6 @@ def get_hydrogen_curve(
             water_prod = vRES_prod / water["elec_to_water"].iloc[0]
 
         # Calculate LCOH based on given data and the equation
-        # # Get the discount rate
-        # if isinstance(discount_rate, dict):
-        #     if "overrides" in discount_rate:
-        #         overrides = discount_rate["overrides"]
-        #         if shape in overrides:
-        #             discount_rate = overrides[shape]
-        #         else:
-        #             discount_rate = discount_rate["default"]
-        #     else:
-        #         discount_rate = discount_rate["default"]
         discount_rate = config["discount_rate"]
         lifetime = config["electrolyser_lifetime"]
         crf = (
