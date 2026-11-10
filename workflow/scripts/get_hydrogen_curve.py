@@ -87,7 +87,6 @@ def get_hydrogen_curve(
     water_cost = []
     vRES_prod = []
     vRES_cost = []
-    breakpoint()
     # Start from the lowest cost vRES
     if water["prod"].sum() > 0:
         vRES_prod_total = np.cumsum(vRES_dict["prod"])[-1]
@@ -135,8 +134,7 @@ def get_hydrogen_curve(
                     vRES_cost = np.append(vRES_cost, vRES_dict["lcoe"][i])
                     vRES_cost = np.append(vRES_cost, vRES_dict["lcoe"][i + 1 : ii])
                     vRES_cost = np.append(vRES_cost, vRES_dict["lcoe"][ii])
-                else:
-                    # TODO: not yet debugged
+                else:  # If vRES is the limiting factor
                     add_prod = [np.cumsum(vRES_dict["prod"])[i] - vRES_step_0]
                     add_prod = np.append(add_prod, vRES_dict["prod"][i + 1 :])
                     vRES_prod = np.append(vRES_prod, add_prod)
@@ -149,7 +147,6 @@ def get_hydrogen_curve(
                     water_prod, add_prod / water["elec_to_water"].iloc[1]
                 )
         else:
-            # TODO: not yet debugged
             # See vRES or water total prod is the limiting factor
             water_total = water["prod"].sum() * 1e9  # Unit: m3
             if (
