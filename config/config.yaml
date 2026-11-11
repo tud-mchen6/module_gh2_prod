@@ -2,7 +2,7 @@
 
 # electrolyser parameters specification
 electrolyser_energy: 58  # kWhe/kg H2
-electrolyser_CAPEX: 2075  # EUR/kW
+electrolyser_CAPEX: 2075  # EUR/kWel
 electrolyser_FOM: 0.025
 electrolyser_lifetime: 20
 # discount rate for calculation

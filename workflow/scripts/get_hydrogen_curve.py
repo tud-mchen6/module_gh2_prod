@@ -175,11 +175,8 @@ def get_hydrogen_curve(
             / ((1 + discount_rate) ** lifetime - 1)
         )
         gh2_prod = vRES_prod / config["electrolyser_energy"]  # Unit: kg H2 / year
-        cap = (  # Unit: kW
-            gh2_prod * LHV / 8760
-        ) / config[
-            "util_rate"
-        ]  # assume same power level all year; conservative assumption
+        # assume same power level all year; conservative assumption
+        cap = vRES_prod / 8760 / config["util_rate"]  # Unit: kWel
         # Electrolyser CAPEX and FOM
         # TODO: add replacement cost of electrolyser
         tot_cost = (
